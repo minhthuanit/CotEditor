@@ -882,8 +882,7 @@ static NSArray *kSyntaxDictKeys;
 // ------------------------------------------------------
 {
     if (![[self layoutManager] showOtherInvisibles]) { return; }
-    NSColor *color = [NSUnarchiver unarchiveObjectWithData:[[NSUserDefaults standardUserDefaults]
-                                                            dataForKey:k_key_invisibleCharactersColor]];
+    NSColor *color = [[(NSTextView<CETextViewProtocol> *)[[self layoutManager] firstTextView] theme] invisiblesColor];
     if ([[[self layoutManager] firstTextView] textColor] == color) { return; }
     NSDictionary *attrs = @{};
     NSMutableArray *ranges = [NSMutableArray array];
@@ -975,6 +974,7 @@ static NSArray *kSyntaxDictKeys;
     NSInteger i, j, count;
     BOOL isSingleQuotes = NO, isDoubleQuotes = NO;
     double indicatorValue, beginDouble = 0.0;
+    CETheme *theme = [(NSTextView<CETextViewProtocol> *)[[self layoutManager] firstTextView] theme];
     
     NS_DURING
         // Keywords > Commands > Values > Numbers > Strings > Characters > Comments
@@ -993,11 +993,10 @@ static NSArray *kSyntaxDictKeys;
                 }
                 break;
             }
-
+            
             strDicts = [self coloringDictionary][kSyntaxDictKeys[i]];
             count = [strDicts count];
-            [self setTextColor:[NSUnarchiver unarchiveObjectWithData:
-                                [[NSUserDefaults standardUserDefaults] dataForKey:k_key_allSyntaxColors[i]]]]; // ===== retain
+            [self setTextColor:[theme syntaxColorWithIndex:i]]; // ===== retain
             [self setCurrentAttrs:@{NSForegroundColorAttributeName: [self textColor]}]; // ===== retain
 
             // シングル／ダブルクォートのカラーリングがあったら、コメントとともに別メソッドでカラーリングする
